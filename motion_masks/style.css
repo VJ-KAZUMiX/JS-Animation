@@ -55,4 +55,8 @@ a {
 }
 a:hover {
 	text-decoration: none;
+}#introFader {
+	background-color: #FFF;
+	height: 100%;
+	width: 100%;
 }

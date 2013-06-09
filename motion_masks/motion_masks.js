@@ -114,7 +114,36 @@
         }
     };
 
-    taskManager.addTask(maskLauncher);
+    var introFader = (function () {
+        var targetElm = d.getElementById('introFader');
+        var alpha = 100;
+
+        var introFader = {};
+
+        introFader.update = function () {
+            alpha *= 0.9;
+            console.log(alpha);
+            if (alpha < 1) {
+                targetElm.parentNode.removeChild(targetElm);
+                taskManager.addTask(maskLauncher);
+                return false;
+            }
+
+            targetElm.style.opacity = alpha / 100;
+            targetElm.style.filter = 'alpha(opacity='+alpha+')';
+
+            return true;
+        }
+
+        return introFader;
+    })();
+
+    var cachedImageList = [];
+    for (var i = 0, len = imageList.length; i < len; i++) {
+        var cachedImage = new Image();
+        cachedImage.src = imageList[i];
+        cachedImageList.push(cachedImage);
+    }
 
     setDisplaySize();
     if (window.addEventListener) {
@@ -122,6 +151,8 @@
     } else if (window.attachEvent) {
         window.attachEvent('onresize', setDisplaySize);
     }
+
+    taskManager.addTask(introFader);
 
     setInterval(taskManager.execute, 1000 / 30);
 
