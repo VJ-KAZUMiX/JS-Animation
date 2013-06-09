@@ -10,7 +10,6 @@
     'use strict';
 
     var imageList = ['img/AHI00.jpg', 'img/AHI01.jpg', 'img/AHI02.jpg', 'img/AHI03.jpg', 'img/AHI04.jpg'];
-    //var imageList = ['img/AHI00.jpg', 'img/AHI01.jpg', 'img/AHI02.jpg', 'img/AHI04.jpg'];
 
     var d = document;
     var baseWindow = d.getElementById('baseWindow');
@@ -24,7 +23,7 @@
 
         taskManager.addTask = function (task) {
             addedTaskList.push(task);
-        }
+        };
 
         taskManager.execute = function () {
             var nextTaskList = [];
@@ -36,7 +35,7 @@
             }
             taskList = nextTaskList.concat(addedTaskList);
             addedTaskList = [];
-        }
+        };
 
         return taskManager;
     })();
@@ -44,6 +43,30 @@
     function setDisplaySize () {
         displayWidth = baseWindow.clientWidth;
         displayHeight = baseWindow.clientHeight;
+    }
+
+    function maskDraw () {
+        if (!this) {
+            throw new Error('this is not found.');
+        }
+        this.style.width = Math.floor(this.size.width) + 'px';
+        this.style.height = Math.floor(this.size.height) + 'px';
+
+        this.style.left = Math.floor(this.pos.x) + 'px';
+        this.style.top = Math.floor(this.pos.y) + 'px';
+    }
+
+     function maskUpdate () {
+        this.velocity += this.acceleration;
+        this.pos.x += this.velocity;
+
+        if (this.pos.x >= displayWidth || (this.pos.x + this.size.width) <= 0) {
+            this.parentNode.removeChild(this);
+            return false;
+        }
+
+        this.draw();
+        return true;
     }
 
     function createMaskH (bgImageUrl) {
@@ -71,38 +94,16 @@
             mask.velocity *= -1;
         }
 
-        mask.draw = function () {
-            mask.style.width = Math.floor(mask.size.width) + 'px';
-            mask.style.height = Math.floor(mask.size.height) + 'px';
-
-            this.style.left = Math.floor(this.pos.x) + 'px';
-            this.style.top = Math.floor(this.pos.y) + 'px';
-        };
-
-        mask.update = function () {
-            this.velocity += this.acceleration;
-            this.pos.x += this.velocity;
-
-            if (this.pos.x >= displayWidth || (this.pos.x + this.size.width) <= 0) {
-                this.parentNode.removeChild(this);
-                return false;
-            }
-
-            this.draw();
-
-            return true;
-        }
+        mask.draw = maskDraw;
+        mask.update = maskUpdate;
 
         mask.draw();
 
         return mask;
     }
 
-    var maskLauncher = (function () {
-        var maskLauncher = {};
-
-        maskLauncher.update = function () {
-            setDisplaySize();
+    var maskLauncher = {
+        update: function () {
             if (!!(Math.random() < 0.2)) {
                 var bgImageUrl = imageList[Math.floor(Math.random() * imageList.length)];
                 var mask = createMaskH(bgImageUrl);
@@ -110,14 +111,17 @@
                 taskManager.addTask(mask);
             }
             return true;
-        };
-
-        return maskLauncher;
-    })();
+        }
+    };
 
     taskManager.addTask(maskLauncher);
 
     setDisplaySize();
+    if (window.addEventListener) {
+        window.addEventListener('resize', setDisplaySize, false);
+    } else if (window.attachEvent) {
+        window.attachEvent('onresize', setDisplaySize);
+    }
 
     setInterval(taskManager.execute, 1000 / 30);
 
