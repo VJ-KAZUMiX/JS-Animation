@@ -122,7 +122,6 @@
 
         introFader.update = function () {
             alpha *= 0.9;
-            console.log(alpha);
             if (alpha < 1) {
                 targetElm.parentNode.removeChild(targetElm);
                 taskManager.addTask(maskLauncher);
