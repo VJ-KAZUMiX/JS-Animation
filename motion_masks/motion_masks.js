@@ -132,7 +132,7 @@
             targetElm.style.filter = 'alpha(opacity='+alpha+')';
 
             return true;
-        }
+        };
 
         return introFader;
     })();
